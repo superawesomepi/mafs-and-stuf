@@ -12,5 +12,6 @@ void mmm_freeup();
 void mmm_seq();
 void* mmm_par(void *);
 double mmm_verify();
+void display();
 
 #endif /* MMM_H_ */

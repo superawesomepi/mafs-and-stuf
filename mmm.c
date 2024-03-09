@@ -13,11 +13,42 @@ void mmm_init() {
 	// TODO
 	// A = (double **) malloc(size * sizeof(double*));
 	// allocate the rest of the matrices
+	 // malloc a size N array of pointers to ints
+ 	A = (double**) malloc(sizeof(double*) * size);
+	B = (double**) malloc(sizeof(double*) * size);
+	SEQ_MATRIX = (double**) malloc(sizeof(double*) * size);
+	if(mode == 2) PAR_MATRIX = (double**) malloc(sizeof(double*) * size);
+	//printf("Allocated space for matrices\n");
 
+ 	// iterate through each row and malloc a size N array of ints
+ 	for (int i = 0; i < size; i++) {
+    	A[i] = (double*) malloc(sizeof(double) * size);
+		B[i] = (double*) malloc(sizeof(double) * size);
+		SEQ_MATRIX[i] = (double*) malloc(sizeof(double) * size);
+		if(mode == 2) PAR_MATRIX[i] = (double*) malloc(sizeof(double) * size);
+ 	}
+	//printf("Allocated columns for matrices\n");
+ 	// can now have access to matrix[i][j]
 	// TODO
 	srand((unsigned)time(NULL));	// seed the random number generator
  	// initialize A and B with random values between 0 and 99
 	// initialize SEQ_MATRIX and PAR_MATRIX with 0s
+	for(int i = 0; i < size; i++) { // initialize matrix with random values
+		for(int j = 0; j < size; j++) {
+			double r = rand() % 100;
+			A[i][j] = r;
+			//printf("Allocated A at %d %d with value %.1f\n", i, j, r);
+			r = rand() % 100;
+			B[i][j] = r;
+			//printf("Allocated B at %d %d with value %.1f\n", i, j, r);
+			SEQ_MATRIX[i][j] = 0;
+			//printf("Allocated seq matrix to 0\n");
+			if(mode == 2) {
+				PAR_MATRIX[i][j] = 0;
+				//printf("Allocated par matrix to 0\n");
+			}
+		}
+	}
 
 }
 
@@ -26,7 +57,11 @@ void mmm_init() {
  * @param matrix pointer to a 2D array
  */
 void mmm_reset(double **matrix) {
-	// TODO
+	for(int i = 0; i < size; i++) {
+		for(int j = 0; j < size; j++) {
+			matrix[i][j] = 0;
+		}
+	}
 }
 
 /**
@@ -35,13 +70,29 @@ void mmm_reset(double **matrix) {
  */
 void mmm_freeup() {
 	// TODO
+	for(int i = 0; i < size; i++) {
+		free(A[i]);
+		free(B[i]);
+		free(SEQ_MATRIX[i]);
+		free(PAR_MATRIX[i]);
+	}
+	free(A);
+	free(B);
+	free(SEQ_MATRIX);
+	free(PAR_MATRIX);
 }
 
 /**
  * Sequential MMM (size is in the global var)
  */
 void mmm_seq() {
-	// TODO - code to perform sequential MMM
+	for(int i = 0; i < size; i++) {
+		for(int j = 0; j < size; j++) {
+			for(int k = 0; k < size; k++) {
+				SEQ_MATRIX[i][j] += A[i][k] * B [k][j];
+			}
+		}
+	}
 }
 
 /**
@@ -49,6 +100,17 @@ void mmm_seq() {
  */
 void *mmm_par(void *args) {
 	// TODO - code to perform parallel MMM
+	int *range = (int*) args;
+	int end = *range + (size / num_threads);
+	if(end > size) end = size;
+	for(int i = *range; i < end; i++) {
+		for(int j = 0; j < size; j++) {
+			for(int k = 0; k < size; k++) {
+				PAR_MATRIX[i][j] += A[i][k] * B [k][j];
+			}
+		}
+	}
+	return NULL;
 }
 
 /**
@@ -61,5 +123,22 @@ void *mmm_par(void *args) {
 double mmm_verify() {
 	// TODO
 	// You may find the math.h function fabs() to be useful here (absolute value)
-	return -1;
+	double difference = 0;
+	for(int i = 0; i < size; i++) {
+		for(int j = 0; j < size; j++) {
+			difference += fabs(SEQ_MATRIX[i][j] - PAR_MATRIX[i][j]);
+		}
+	}
+	return difference;
+}
+
+void display() {
+	for(int i = 0; i < size; i++) {
+		printf("\n");
+		for(int j = 0; j < size; j++) {
+			if(mode == 1) printf("%.1f ", SEQ_MATRIX[i][j]);
+			if(mode == 2) printf("%.1f ", PAR_MATRIX[i][j]);
+		}
+	}
+	printf("\n");
 }
