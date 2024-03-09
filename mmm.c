@@ -74,12 +74,12 @@ void mmm_freeup() {
 		free(A[i]);
 		free(B[i]);
 		free(SEQ_MATRIX[i]);
-		free(PAR_MATRIX[i]);
+		if(mode == 2) free(PAR_MATRIX[i]);
 	}
 	free(A);
 	free(B);
 	free(SEQ_MATRIX);
-	free(PAR_MATRIX);
+	if(mode == 2) free(PAR_MATRIX);
 }
 
 /**

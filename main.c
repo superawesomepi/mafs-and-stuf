@@ -14,9 +14,9 @@ int main(int argc, char *argv[]) {
 
 	// TODO - deal with command line arguments, save the "mode"
 	// "size" and "num threads" into globals so threads can see them
-	if(argc < 3) {
+	if(argc < 2) {
 		printf("Usage: ./mmm S <size>\n");
-		printf("USage: ./mmm P <threads> <size>\n");
+		printf("Usage: ./mmm P <threads> <size>\n");
 		return 0;
 	}
 	if(strcmp(argv[1], "S") == 0) {
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 		printf("========\n");
 	} else if(strcmp(argv[1], "P") == 0) {
 		if(argc != 4) {
-			printf("USage: ./mmm P <threads> <size>\n");
+			printf("Usage: ./mmm P <threads> <size>\n");
 			return 0;
 		}
 		mode = 2;
